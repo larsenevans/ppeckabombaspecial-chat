@@ -2,6 +2,10 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { ThemeProvider } from "@/lib/theme-context"
+import { ParticleCanvas } from "@/components/gl"
+import { ThemeSettingsPanel } from "@/components/theme-settings-panel"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -44,11 +48,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans antialiased bg-background`}>
+        <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider>
+            <ParticleCanvas />
+            <div className="relative z-10">
+              {children}
+              <ThemeSettingsPanel />
+            </div>
+          </ThemeProvider>
+        </NextThemesProvider>
         <Analytics />
       </body>
     </html>
   )
 }
+
