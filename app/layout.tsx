@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { ThemeProvider } from "@/lib/theme-context"
+import { ParticleCanvas } from "@/components/gl"
 import { ThemeSettingsPanel } from "@/components/theme-settings-panel"
 import "./globals.css"
 
@@ -11,8 +12,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Aegis.ai — Regulačný súlad bez slepých miest",
-  description: "AI agent pre vysledovateľný súlad s AI Act, GDPR a NIS2.",
+  title: "AI Chat Assistant",
+  description: "Chat with our AI assistant powered by Gemini",
   generator: "v0.app",
   icons: {
     icon: [
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased bg-background`}>
         <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
           <ThemeProvider>
+            <ParticleCanvas />
             <div className="relative z-10">
               {children}
               <ThemeSettingsPanel />
