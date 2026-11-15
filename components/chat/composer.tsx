@@ -16,13 +16,15 @@ import {
 import Image from "next/image"
 import { AnimatedOrb } from "./animated-orb"
 import { AudioWaveform } from "./audio-waveform"
+import { MISTRAL_MODEL_ID, type AIModel } from "@/lib/ai-models"
 
-export type AIModel = "google/gemini-2.0-flash-001" | "openai/gpt-4o" | "anthropic/claude-sonnet-4"
+export type { AIModel }
 
-export const AI_MODELS: { id: AIModel; name: string; icon: string }[] = [
+export const AI_MODELS: { id: AIModel; name: string; icon?: string }[] = [
   { id: "google/gemini-2.0-flash-001", name: "Gemini", icon: "/images/google.webp" },
   { id: "openai/gpt-4o", name: "GPT-4o", icon: "/images/gpt.png" },
   { id: "anthropic/claude-sonnet-4", name: "Claude", icon: "/images/claude.svg" },
+  { id: MISTRAL_MODEL_ID, name: "Mistral Small" },
 ]
 
 interface ComposerProps {
@@ -367,13 +369,17 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
                         selectedModel === model.id && "bg-stone-100",
                       )}
                     >
-                      <Image
-                        src={model.icon || "/placeholder.svg"}
-                        alt={model.name}
-                        width={20}
-                        height={20}
-                        className="rounded-sm object-contain w-4 h-4"
-                      />
+                      {model.icon ? (
+                        <Image
+                          src={model.icon}
+                          alt=""
+                          width={20}
+                          height={20}
+                          className="size-4 rounded-sm object-contain"
+                        />
+                      ) : (
+                        <Brain className="size-4" aria-hidden="true" />
+                      )}
                       <span className="text-sm">{model.name}</span>
                     </DropdownMenuItem>
                   ))}
