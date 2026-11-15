@@ -46,7 +46,7 @@ export function ThemeSettingsPanel() {
       {/* Settings Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-6 right-6 z-40 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background/95 transition-all duration-200 text-foreground"
+        className="fixed right-20 top-4 z-40 flex size-11 items-center justify-center rounded-full border border-border bg-background/80 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-accent/10"
         aria-label="Open theme settings"
         title="Theme Settings"
       >
@@ -57,19 +57,26 @@ export function ThemeSettingsPanel() {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
           {/* Backdrop */}
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
+            aria-label="Close theme settings"
           />
 
           {/* Panel */}
-          <div className="relative bg-background border border-border rounded-xl shadow-xl w-full sm:w-96 p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+          <div
+            className="relative max-h-[90dvh] w-full space-y-6 overflow-y-auto rounded-2xl border border-border bg-background p-5 shadow-xl sm:w-96 sm:p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="theme-settings-title"
+          >
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Theme Settings</h2>
+              <h2 id="theme-settings-title" className="text-lg font-semibold text-foreground">Theme Settings</h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-accent/10 rounded-lg transition-colors"
+                className="flex size-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent/10 hover:text-foreground"
                 aria-label="Close settings"
               >
                 <X className="w-5 h-5" />
@@ -84,7 +91,8 @@ export function ThemeSettingsPanel() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setTheme('light')}
-                  className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                  aria-pressed={currentTheme === 'light'}
+                  className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 font-medium transition-colors ${
                     currentTheme === 'light'
                       ? 'bg-accent text-accent-foreground'
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -95,7 +103,8 @@ export function ThemeSettingsPanel() {
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
-                  className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                  aria-pressed={currentTheme === 'dark'}
+                  className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 font-medium transition-colors ${
                     currentTheme === 'dark'
                       ? 'bg-accent text-accent-foreground'
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -118,7 +127,7 @@ export function ThemeSettingsPanel() {
                   type="color"
                   value={currentHexColor}
                   onChange={handleColorChange}
-                  className="w-16 h-10 rounded-lg cursor-pointer border border-border"
+                  className="h-11 w-16 cursor-pointer rounded-lg border border-border"
                 />
                 {/* Hue Slider */}
                 <input
@@ -127,7 +136,7 @@ export function ThemeSettingsPanel() {
                   max="360"
                   value={currentAccentHue}
                   onChange={handleHueChange}
-                  className="flex-1 h-10 rounded-lg cursor-pointer accent-[var(--accent-hue-dynamic)]"
+                  className="h-11 min-w-0 flex-1 cursor-pointer accent-[var(--accent-hue-dynamic)]"
                 />
               </div>
               {/* Hue Value Display */}
@@ -143,7 +152,7 @@ export function ThemeSettingsPanel() {
               </label>
               <button
                 onClick={toggleParticles}
-                className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors ${
                   particlesEnabled
                     ? 'bg-accent text-accent-foreground'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -160,7 +169,7 @@ export function ThemeSettingsPanel() {
                 resetToDefaults();
                 setTheme('dark');
               }}
-              className="w-full py-2 px-4 rounded-lg font-medium bg-secondary/50 text-secondary-foreground hover:bg-secondary transition-colors duration-200 flex items-center justify-center gap-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-secondary/50 px-4 py-2 font-medium text-secondary-foreground transition-colors hover:bg-secondary"
             >
               <RotateCcw className="w-4 h-4" />
               Reset to Defaults

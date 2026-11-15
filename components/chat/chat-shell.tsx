@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { MessageSquareDashed } from "lucide-react"
+import { MessageSquareDashed, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 import { MessageList } from "./message-list"
 import { Composer, type AIModel } from "./composer"
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,7 @@ export function ChatShell() {
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const [selectedModel, setSelectedModel] = useState<AIModel>("google/gemini-2.0-flash-001")
   const [isLoaded, setIsLoaded] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
 
   // Load messages from localStorage on mount
   useEffect(() => {
@@ -183,23 +185,48 @@ export function ChatShell() {
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
+  const isDark = resolvedTheme === "dark"
+
   return (
-    <div
-      className="relative h-dvh bg-stone-50"
-      style={{
-        boxShadow:
-          "rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px",
-      }}
-    >
-      <Button
-        onClick={clearChat}
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-20 h-10 w-10 rounded-full bg-zinc-100 hover:bg-zinc-200 text-stone-600"
-        aria-label="Reset chat"
-      >
-        <MessageSquareDashed className="w-5 h-5" />
-      </Button>
+    <main className="relative h-dvh overflow-hidden bg-background text-foreground transition-colors duration-300">
+      <header className="absolute inset-x-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <span className="text-sm font-semibold tracking-tight">J</span>
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold leading-tight">Jarvis</p>
+            <p className="text-xs text-muted-foreground">AI assistant</p>
+          </div>
+          <span className="ml-1 hidden items-center gap-1.5 rounded-full border border-border/70 px-2.5 py-1 text-xs text-muted-foreground sm:inline-flex">
+            <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+            Ready
+          </span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            onClick={clearChat}
+            variant="ghost"
+            size="icon"
+            className="size-11 rounded-full text-muted-foreground hover:text-foreground"
+            aria-label="Start a new chat"
+            title="Start a new chat"
+          >
+            <MessageSquareDashed className="size-5" />
+          </Button>
+          <Button
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            variant="outline"
+            size="icon"
+            className="size-11 rounded-full bg-background/80"
+            aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
+            title={`Switch to ${isDark ? "light" : "dark"} theme`}
+          >
+            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </Button>
+        </div>
+      </header>
 
       <MessageList messages={messages} isStreaming={isStreaming} error={error} onRetry={retry} isLoaded={isLoaded} />
 
@@ -211,6 +238,6 @@ export function ChatShell() {
         selectedModel={selectedModel}
         onModelChange={handleModelChange}
       />
-    </div>
+    </main>
   )
 }

@@ -131,21 +131,21 @@ export function MessageList({ messages, isStreaming, error, onRetry, isLoaded }:
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="absolute inset-0 overflow-y-auto pt-16 pb-32 space-y-4 border-none px-6"
+      className="absolute inset-x-0 bottom-0 top-16 flex flex-col gap-4 overflow-y-auto px-4 pb-36 pt-4 sm:px-6"
       role="log"
       aria-label="Chat messages"
       aria-live="polite"
     >
       {/* Empty state */}
       {messages.length === 0 && !error && !isStreaming && (
-        <div className="flex flex-col items-center justify-center h-full text-center text-stone-400">
+        <div className="flex min-h-[calc(100dvh-15rem)] flex-col items-center justify-center px-4 text-center text-muted-foreground">
           <div className={`mb-4 ${hasAnimated ? "orb-intro" : ""}`}>
             <AnimatedOrb size={128} />
           </div>
-          <p className={`text-lg font-medium text-gray-500 ${hasAnimated ? "text-blur-intro" : ""}`}>
+          <p className={`text-lg font-semibold tracking-tight text-foreground ${hasAnimated ? "text-blur-intro" : ""}`}>
             Hi, my name is Jarvis
           </p>
-          <p className={`text-sm mt-1 text-gray-400 ${hasAnimated ? "text-blur-intro-delay" : ""}`}>
+          <p className={`mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground ${hasAnimated ? "text-blur-intro-delay" : ""}`}>
             Send a message to begin chatting with the AI assistant
           </p>
         </div>
@@ -173,23 +173,23 @@ export function MessageList({ messages, isStreaming, error, onRetry, isLoaded }:
       {/* Error state */}
       {error && (
         <div
-          className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl"
+          className="flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4"
           role="alert"
           style={{
             boxShadow:
               "rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px",
           }}
         >
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0" aria-hidden="true" />
+          <AlertCircle className="size-5 shrink-0 text-destructive" aria-hidden="true" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-red-800">Something went wrong</p>
-            <p className="text-xs text-red-600 mt-0.5">{error}</p>
+            <p className="text-sm font-medium text-destructive">Something went wrong</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{error}</p>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={onRetry}
-            className="text-red-600 hover:text-red-700 hover:bg-red-100 transition-colors"
+            className="min-h-11 text-destructive hover:bg-destructive/10 hover:text-destructive"
             aria-label="Retry sending message"
           >
             <RefreshCw className="w-4 h-4 mr-1" aria-hidden="true" />

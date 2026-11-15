@@ -32,8 +32,8 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
       {/* Avatar */}
       <div
         className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-          isUser ? "bg-white" : "bg-emerald-600",
+          "flex size-8 shrink-0 items-center justify-center rounded-full",
+          isUser ? "bg-secondary text-secondary-foreground" : "bg-emerald-600 text-white",
           !isUser && isStreaming && "sticky bottom-4 self-end transition-all duration-300",
         )}
         style={{
@@ -42,21 +42,21 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
         }}
         aria-hidden="true"
       >
-        {isUser ? <User className="w-4 h-4 text-stone-800" /> : <AnimatedOrb className="w-8 h-8 shrink-0" />}
+        {isUser ? <User className="size-4" /> : <AnimatedOrb className="w-8 h-8 shrink-0" />}
       </div>
 
       {/* Message content */}
       <div className={cn("flex flex-col", isUser ? "items-end" : "items-start")}>
         {/* Role label (optional, shown on larger screens) */}
-        <span className="text-xs text-stone-400 mb-1 hidden sm:block mt-2">{isUser ? "You" : "Assistant"}</span>
+        <span className="mb-1 mt-2 hidden text-xs text-muted-foreground sm:block">{isUser ? "You" : "Assistant"}</span>
 
         {/* Bubble */}
         <div
           className={cn(
             "rounded-2xl border-none overflow-hidden",
             isUser
-              ? "bg-white text-stone-800 border border-stone-200 rounded-br-md"
-              : "bg-transparent text-stone-800 rounded-bl-md",
+              ? "rounded-br-md border border-border/70 bg-card text-card-foreground shadow-sm"
+              : "rounded-bl-md bg-transparent text-foreground",
           )}
           style={{
             boxShadow: isUser
@@ -94,7 +94,7 @@ export function MessageBubble({ message, isStreaming = false }: MessageBubblePro
         </div>
 
         {/* Timestamp */}
-        <span className="text-xs text-stone-400 mt-1">{formatTime(message.createdAt)}</span>
+        <span className="mt-1 text-xs text-muted-foreground">{formatTime(message.createdAt)}</span>
       </div>
     </div>
   )
