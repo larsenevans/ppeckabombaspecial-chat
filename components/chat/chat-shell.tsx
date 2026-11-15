@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { MessageSquareDashed, Moon, Sun } from "lucide-react"
+import { KeyRound, MessageSquareDashed, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { MessageList } from "./message-list"
-import { Composer, type AIModel } from "./composer"
+import { Composer } from "./composer"
 import { Button } from "@/components/ui/button"
+import { MistralKeyDialog } from "./mistral-key-dialog"
+import { MISTRAL_MODEL_ID, type AIModel } from "@/lib/ai-models"
 
 // Data model for messages
 export interface Message {
@@ -31,6 +33,9 @@ export function ChatShell() {
   const [error, setError] = useState<string | null>(null)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const [selectedModel, setSelectedModel] = useState<AIModel>("google/gemini-2.0-flash-001")
+  const [mistralApiKey, setMistralApiKey] = useState("")
+  const [mistralApiKeyDraft, setMistralApiKeyDraft] = useState("")
+  const [isMistralDialogOpen, setIsMistralDialogOpen] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
@@ -50,6 +55,9 @@ export function ChatShell() {
       const savedModel = localStorage.getItem(MODEL_STORAGE_KEY) as AIModel | null
       if (savedModel) {
         setSelectedModel(savedModel)
+        if (savedModel === MISTRAL_MODEL_ID) {
+          setIsMistralDialogOpen(true)
+        }
       }
     } catch (e) {
       console.error("Failed to load from localStorage:", e)
@@ -68,15 +76,28 @@ export function ChatShell() {
     }
   }, [messages])
 
-  const handleModelChange = useCallback((model: AIModel) => {
-    setSelectedModel(model)
-    localStorage.setItem(MODEL_STORAGE_KEY, model)
-  }, [])
+  const handleModelChange = useCallback(
+    (model: AIModel) => {
+      setSelectedModel(model)
+      localStorage.setItem(MODEL_STORAGE_KEY, model)
+
+      if (model === MISTRAL_MODEL_ID && !mistralApiKey) {
+        setMistralApiKeyDraft("")
+        setIsMistralDialogOpen(true)
+      }
+    },
+    [mistralApiKey],
+  )
 
   // Send a message to the AI
   const sendMessage = useCallback(
     async (content: string, imageData?: string) => {
       if ((!content.trim() && !imageData) || isStreaming) return
+
+      if (selectedModel === MISTRAL_MODEL_ID && !mistralApiKey) {
+        setIsMistralDialogOpen(true)
+        return
+      }
 
       setError(null)
 
@@ -115,12 +136,16 @@ export function ChatShell() {
               imageData: m.imageData,
             })),
             model: selectedModel,
+            ...(selectedModel === MISTRAL_MODEL_ID ? { mistralApiKey } : {}),
           }),
           signal: controller.signal,
         })
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          const responseBody = await response.json().catch(() => null)
+          throw new Error(
+            typeof responseBody?.error === "string" ? responseBody.error : `HTTP error! status: ${response.status}`,
+          )
         }
 
         const reader = response.body?.getReader()
@@ -146,7 +171,11 @@ export function ChatShell() {
         }
 
         if (!accumulatedContent.trim()) {
-          setError("The AI Gateway returned no response. Check your Vercel AI Gateway billing setup and try again.")
+          setError(
+            selectedModel === MISTRAL_MODEL_ID
+              ? "Mistral returned no response. Check the API key, model access, and account credits."
+              : "The AI Gateway returned no response. Check your Vercel AI Gateway billing setup and try again.",
+          )
           setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessage.id))
           return
         }
@@ -159,7 +188,13 @@ export function ChatShell() {
           )
         } else {
           console.error("Error sending message:", e)
-          setError(e instanceof Error ? e.message : "An error occurred")
+          setError(
+            selectedModel === MISTRAL_MODEL_ID
+              ? "Mistral request failed. Check the API key and account access, then try again."
+              : e instanceof Error
+                ? e.message
+                : "An error occurred",
+          )
           setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessage.id))
         }
       } finally {
@@ -167,7 +202,7 @@ export function ChatShell() {
         setAbortController(null)
       }
     },
-    [messages, isStreaming, selectedModel],
+    [messages, isStreaming, selectedModel, mistralApiKey],
   )
 
   const retry = useCallback(() => {
@@ -186,6 +221,27 @@ export function ChatShell() {
       abortController.abort()
     }
   }, [abortController])
+
+  const openMistralSettings = useCallback(() => {
+    setMistralApiKeyDraft(mistralApiKey)
+    setIsMistralDialogOpen(true)
+  }, [mistralApiKey])
+
+  const saveMistralApiKey = useCallback(() => {
+    const key = mistralApiKeyDraft.trim()
+    if (!key) return
+
+    setMistralApiKey(key)
+    setError(null)
+    setIsMistralDialogOpen(false)
+  }, [mistralApiKeyDraft])
+
+  const removeMistralApiKey = useCallback(() => {
+    setMistralApiKey("")
+    setMistralApiKeyDraft("")
+    setError(null)
+    setIsMistralDialogOpen(false)
+  }, [])
 
   const clearChat = useCallback(() => {
     setMessages([])
@@ -224,6 +280,16 @@ export function ChatShell() {
             <MessageSquareDashed className="size-5" />
           </Button>
           <Button
+            onClick={openMistralSettings}
+            variant="ghost"
+            size="icon"
+            className={`size-11 rounded-full ${mistralApiKey ? "text-primary" : "text-muted-foreground"}`}
+            aria-label={mistralApiKey ? "Mistral API key configured" : "Set Mistral API key"}
+            title={mistralApiKey ? "Mistral API key configured" : "Set Mistral API key"}
+          >
+            <KeyRound className="size-4" />
+          </Button>
+          <Button
             onClick={() => setTheme(isDark ? "light" : "dark")}
             variant="outline"
             size="icon"
@@ -236,13 +302,22 @@ export function ChatShell() {
         </div>
       </header>
 
+      <MistralKeyDialog
+        open={isMistralDialogOpen}
+        onOpenChange={setIsMistralDialogOpen}
+        apiKeyDraft={mistralApiKeyDraft}
+        onApiKeyDraftChange={setMistralApiKeyDraft}
+        hasSavedApiKey={Boolean(mistralApiKey)}
+        onSave={saveMistralApiKey}
+        onRemove={removeMistralApiKey}
+      />
+
       <MessageList messages={messages} isStreaming={isStreaming} error={error} onRetry={retry} isLoaded={isLoaded} />
 
       <Composer
         onSend={sendMessage}
         onStop={stopStreaming}
         isStreaming={isStreaming}
-        disabled={!!error}
         selectedModel={selectedModel}
         onModelChange={handleModelChange}
       />

@@ -1,14 +1,18 @@
+import { createMistral } from "@ai-sdk/mistral"
 import { streamText, type ModelMessage } from "ai"
+import { MISTRAL_MODEL_ID } from "@/lib/ai-models"
 
 /**
  * POST /api/chat
  *
- * This route handler proxies requests to the Vercel AI Gateway.
- * It receives messages from the frontend and streams the AI response back.
+ * This route streams chat responses from the selected gateway model or Mistral using the user's API key.
  */
 export async function POST(req: Request) {
+  let isMistralRequest = false
+
   try {
-    const { messages, model } = await req.json()
+    const { messages, model, mistralApiKey } = await req.json()
+    isMistralRequest = model === MISTRAL_MODEL_ID
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: "Invalid request: messages array required" }), {
@@ -17,7 +21,25 @@ export async function POST(req: Request) {
       })
     }
 
-    const selectedModel = model || "google/gemini-2.0-flash-001"
+    const apiKey = typeof mistralApiKey === "string" ? mistralApiKey.trim() : ""
+
+    if (isMistralRequest && !apiKey) {
+      return new Response(JSON.stringify({ error: "Add your Mistral API key to use this model." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+
+    if (isMistralRequest && apiKey.length > 512) {
+      return new Response(JSON.stringify({ error: "The Mistral API key is too long." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+
+    const selectedModel = isMistralRequest
+      ? createMistral({ apiKey })(MISTRAL_MODEL_ID)
+      : model || "google/gemini-2.0-flash-001"
 
     const lastIndex = messages.length - 1
     const validMessages: ModelMessage[] = messages.flatMap((message: unknown, index: number): ModelMessage[] => {
@@ -68,12 +90,25 @@ When explaining code or technical concepts, use markdown formatting with code bl
 Be conversational but professional. If you're unsure about something, say so honestly.
 When analyzing images, describe them in detail and answer any questions about them.`,
       onError({ error }) {
+        if (isMistralRequest) {
+          console.error("Mistral stream error:", error instanceof Error ? error.name : "Unknown error")
+          return
+        }
+
         console.error("AI stream error:", error)
       },
     })
 
     return result.toTextStreamResponse()
   } catch (error) {
+    if (isMistralRequest) {
+      console.error("Mistral chat API error:", error instanceof Error ? error.name : "Unknown error")
+      return new Response(
+        JSON.stringify({ error: "Mistral request failed. Check the API key and account access." }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      )
+    }
+
     console.error("Chat API error:", error)
 
     return new Response(
