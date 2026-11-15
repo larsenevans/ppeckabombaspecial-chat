@@ -32,6 +32,7 @@ export function ChatShell() {
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const [selectedModel, setSelectedModel] = useState<AIModel>("google/gemini-2.0-flash-001")
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
 
   // Load messages from localStorage on mount
@@ -54,6 +55,7 @@ export function ChatShell() {
       console.error("Failed to load from localStorage:", e)
     } finally {
       setIsLoaded(true)
+      setIsMounted(true)
     }
   }, [])
 
@@ -142,6 +144,12 @@ export function ChatShell() {
             prev.map((msg) => (msg.id === assistantMessage.id ? { ...msg, content: accumulatedContent } : msg)),
           )
         }
+
+        if (!accumulatedContent.trim()) {
+          setError("The AI Gateway returned no response. Check your Vercel AI Gateway billing setup and try again.")
+          setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessage.id))
+          return
+        }
       } catch (e) {
         if (e instanceof Error && e.name === "AbortError") {
           setMessages((prev) =>
@@ -185,7 +193,7 @@ export function ChatShell() {
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
-  const isDark = resolvedTheme === "dark"
+  const isDark = isMounted && resolvedTheme === "dark"
 
   return (
     <main className="relative h-dvh overflow-hidden bg-background text-foreground transition-colors duration-300">

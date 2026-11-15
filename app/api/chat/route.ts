@@ -67,6 +67,9 @@ export async function POST(req: Request) {
 When explaining code or technical concepts, use markdown formatting with code blocks where appropriate.
 Be conversational but professional. If you're unsure about something, say so honestly.
 When analyzing images, describe them in detail and answer any questions about them.`,
+      onError({ error }) {
+        console.error("AI stream error:", error)
+      },
     })
 
     return result.toTextStreamResponse()
