@@ -50,7 +50,7 @@ export function MarkdownRenderer({ content, className, isStreaming = false }: Ma
       const codeMatch = remaining.match(/^`([^`]+)`/)
       if (codeMatch) {
         elements.push(
-          <code key={keyIndex++} className="px-1.5 py-0.5 bg-stone-100 text-stone-700 rounded text-sm font-mono">
+          <code key={keyIndex++} className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
             {codeMatch[1]}
           </code>,
         )
@@ -119,7 +119,7 @@ export function MarkdownRenderer({ content, className, isStreaming = false }: Ma
       const codeMatch = remaining.match(/^`([^`]+)`/)
       if (codeMatch) {
         elements.push(
-          <code key={keyIndex++} className="px-1.5 py-0.5 bg-stone-100 text-stone-700 rounded text-sm font-mono">
+          <code key={keyIndex++} className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
             {codeMatch[1]}
           </code>,
         )

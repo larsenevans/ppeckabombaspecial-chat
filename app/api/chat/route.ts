@@ -1,4 +1,4 @@
-import { streamText } from "ai"
+import { streamText, type ModelMessage } from "ai"
 
 /**
  * POST /api/chat
@@ -20,48 +20,37 @@ export async function POST(req: Request) {
     const selectedModel = model || "google/gemini-2.0-flash-001"
 
     const lastIndex = messages.length - 1
-    const transformedMessages = messages.map(
-      (m: { role: string; content: string; imageData?: string }, index: number) => {
-        // Only process image for the last user message
-        const isLastUserMessage = index === lastIndex && m.role === "user"
+    const validMessages: ModelMessage[] = messages.flatMap((message: unknown, index: number): ModelMessage[] => {
+      if (!message || typeof message !== "object") return []
 
-        if (isLastUserMessage && m.imageData && m.imageData.startsWith("data:image/")) {
-          // For the current message with an image, use multimodal content format
-          return {
-            role: m.role as "user" | "assistant",
+      const candidate = message as { role?: unknown; content?: unknown; imageData?: unknown }
+      if (candidate.role !== "user" && candidate.role !== "assistant") return []
+
+      const role = candidate.role
+      const content = typeof candidate.content === "string" ? candidate.content : ""
+      const imageData = typeof candidate.imageData === "string" ? candidate.imageData : undefined
+      const isLastUserMessage = index === lastIndex && role === "user"
+
+      if (isLastUserMessage && imageData?.startsWith("data:image/")) {
+        return [
+          {
+            role: "user",
             content: [
-              {
-                type: "image" as const,
-                image: m.imageData,
-              },
-              {
-                type: "text" as const,
-                text: m.content || "Describe this image in detail.",
-              },
+              { type: "image", image: imageData },
+              { type: "text", text: content || "Describe this image in detail." },
             ],
-          }
-        }
-
-        // For all other messages (history), use text only
-        // If there was an image, mention it in the text
-        let textContent = m.content
-        if (m.imageData && !isLastUserMessage) {
-          textContent = m.content || "[User shared an image]"
-        }
-
-        return {
-          role: m.role as "user" | "assistant",
-          content: textContent,
-        }
-      },
-    )
-
-    // Filter out any messages with empty content
-    const validMessages = transformedMessages.filter((m: { content: string | object[] }) => {
-      if (typeof m.content === "string") {
-        return m.content.trim().length > 0
+          },
+        ]
       }
-      return true // Keep multimodal messages
+
+      const textContent = imageData && !isLastUserMessage ? content || "[User shared an image]" : content
+      if (!textContent.trim()) return []
+
+      if (role === "user") {
+        return [{ role: "user", content: textContent }]
+      }
+
+      return [{ role: "assistant", content: textContent }]
     })
 
     if (validMessages.length === 0) {
@@ -78,6 +67,9 @@ export async function POST(req: Request) {
 When explaining code or technical concepts, use markdown formatting with code blocks where appropriate.
 Be conversational but professional. If you're unsure about something, say so honestly.
 When analyzing images, describe them in detail and answer any questions about them.`,
+      onError({ error }) {
+        console.error("AI stream error:", error)
+      },
     })
 
     return result.toTextStreamResponse()

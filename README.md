@@ -1,33 +1,25 @@
-# ppeckabombaspecial-chat
+# Chat Jarvis
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+Chat Jarvis je webová chatovacia aplikácia s AI asistentom. Poskytuje čisté a jednoduché rozhranie na konverzáciu s Jarvisom.
 
-## Built with v0
+## Technológie
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_2v8CzbQMKNMvCX5ZnlquNA330axw)
+## Spustenie lokálne
 
-## Getting Started
-
-First, run the development server:
+Nainštaluj závislosti a spusti vývojový server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikáciu otvor na [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Vývoj
 
-## Learn More
-
-To learn more, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+Hlavná chatovacia stránka je v `app/chat` a jej UI komponenty sú v `components/chat`.

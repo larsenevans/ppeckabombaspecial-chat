@@ -207,8 +207,8 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
       <div className="relative max-w-2xl mx-auto pointer-events-auto">
         <div
           className={cn(
-            "flex flex-col gap-3 p-4 bg-white border-stone-200 transition-all duration-200 border-none border-0 overflow-hidden relative rounded-3xl",
-            "focus-within:border-stone-300 focus-within:ring-2 focus-within:ring-stone-200",
+            "relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-border/70 bg-card p-3 text-card-foreground shadow-xl shadow-black/5 transition-all duration-200 sm:p-4",
+            "focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/20",
           )}
           style={{
             boxShadow:
@@ -229,7 +229,7 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
                 </div>
                 <button
                   onClick={removeImage}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-stone-800 hover:bg-stone-900 text-white rounded-full flex items-center justify-center transition-colors"
+                  className="absolute -right-3 -top-3 flex size-11 items-center justify-center rounded-full bg-foreground text-background shadow-md transition-colors hover:bg-foreground/80"
                   aria-label="Remove image"
                 >
                   <X className="w-3 h-3" />
@@ -249,7 +249,7 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
               disabled={isStreaming || disabled}
               rows={1}
               className={cn(
-                "flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-stone-800 placeholder:text-stone-400",
+                "min-w-0 flex-1 resize-none bg-transparent px-2 py-1.5 text-base text-foreground placeholder:text-muted-foreground",
                 "focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed",
                 "max-h-[56px] overflow-y-auto",
               )}
@@ -268,7 +268,7 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
                   playClickSound()
                   onStop()
                 }}
-                className="relative h-9 w-9 shrink-0 transition-all rounded-full flex items-center justify-center cursor-pointer hover:scale-105"
+                className="relative flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105"
                 aria-label="Stop generating"
               >
                 <AnimatedOrb size={36} variant="red" />
@@ -283,7 +283,7 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
                 onClick={handleSend}
                 disabled={(!value.trim() && !uploadedImage) || disabled}
                 className={cn(
-                  "relative h-9 w-9 shrink-0 transition-all rounded-full flex items-center justify-center",
+                  "relative flex size-11 shrink-0 items-center justify-center rounded-full transition-transform",
                   (!value.trim() && !uploadedImage) || disabled
                     ? "opacity-50 cursor-not-allowed"
                     : "cursor-pointer hover:scale-105",
@@ -311,10 +311,10 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
                 disabled={isStreaming || disabled}
                 size="icon"
                 className={cn(
-                  "h-9 w-9 shrink-0 transition-all rounded-full relative z-10",
+                  "relative z-10 size-11 shrink-0 rounded-full transition-all",
                   isRecording
                     ? "bg-red-500 hover:bg-red-600 text-white animate-bounce-subtle"
-                    : "bg-zinc-100 hover:bg-zinc-200 text-stone-700",
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                 )}
                 aria-label={isRecording ? "Stop recording" : "Start voice input"}
               >
@@ -329,19 +329,19 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
               }}
               disabled={isStreaming || disabled}
               size="icon"
-              className="h-9 w-9 shrink-0 bg-zinc-100 hover:bg-zinc-200 text-stone-700 rounded-full"
+              className="size-11 shrink-0 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
               aria-label="Attach image"
             >
               <Paperclip className="w-4 h-4" />
             </Button>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="bg-zinc-100" asChild>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   disabled={isStreaming || disabled}
-                  className="h-9 w-9 shrink-0 bg-zinc-100 hover:bg-zinc-200 text-stone-700 rounded-full"
+                  className="size-11 shrink-0 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   aria-label="Select AI model"
                   onClick={playClickSound}
                 >
@@ -381,7 +381,7 @@ export function Composer({ onSend, onStop, isStreaming, disabled, selectedModel,
               </DropdownMenuPortal>
             </DropdownMenu>
 
-            <span className="text-xs text-stone-400">{currentModel.name}</span>
+            <span className="truncate text-xs text-muted-foreground">{currentModel.name}</span>
           </div>
         </div>
       </div>

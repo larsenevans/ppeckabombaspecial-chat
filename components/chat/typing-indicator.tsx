@@ -11,7 +11,7 @@ export function TypingIndicator() {
 
       {/* Typing dots */}
       <div
-        className="px-4 py-3 rounded-2xl rounded-bl-md bg-white border border-stone-200"
+        className="rounded-2xl rounded-bl-md border border-border/70 bg-card px-4 py-3 text-card-foreground shadow-sm"
         style={{
           boxShadow:
             "rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px",
